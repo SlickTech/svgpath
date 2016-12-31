@@ -6,7 +6,7 @@ This is a Dart port of Fontello's [svgpath](https://github.com/fontello/svgpath)
 `transform` attributes and have to apply changes to svg paths directly.
 Then this package is for you :) !
 
-This package works both
+This package works both in browser and on server.
 
 ## API
 
