@@ -1,11 +1,13 @@
 // Copyright (c) 2016, SlickTech. All rights reserved. Use of this source code
 // is governed by a MIT license that can be found in the LICENSE file.
 
+import 'dart:math';
 import 'path_parse.dart';
 import 'matrix.dart';
 import 'ellipse.dart';
 import 'a2c.dart';
 import 'transform_parse.dart';
+import 'bounding_box.dart';
 
 export 'path_parse.dart' show ParseResult;
 
@@ -21,10 +23,20 @@ class SvgPath {
   // Transforms stack for lazy evaluation
   List _stack = [];
 
+  BoundingBox _bbox;
+
   SvgPath(String path) {
     var pr = parsePath(path);
     err = pr.err;
     segments = pr.segments;
+  }
+
+  SvgPath._clone(List<List<dynamic>> segs) {
+    segments = [];
+    for (var seg in segs) {
+      segments.add([]);
+      segments.last.addAll(seg);
+    }
   }
 
   void _matrix(Matrix m) {
@@ -141,6 +153,7 @@ class SvgPath {
     if (_stack.length == 1) {
       _matrix(_stack[0]);
       _stack = [];
+      _bbox = null;
       return;
     }
 
@@ -153,6 +166,7 @@ class SvgPath {
 
     _matrix(m);
     _stack = [];
+    _bbox = null;
   }
 
   // Convert processed SVG path back to strings
@@ -617,5 +631,140 @@ class SvgPath {
       }
     });
     return this;
+  }
+
+  // Get the bounding box of the path
+  BoundingBox get boundingBox {
+    _evaluateStack();
+
+    if (_bbox != null) {
+      return _bbox;
+    }
+
+    // create a temporary path to avoid manipulate this
+    var path = new SvgPath._clone(segments);
+
+    // from https://github.com/icons8/svg-path-bounding-box
+    var x1 = double.MAX_FINITE;
+    var y1 = double.MAX_FINITE;
+    var x2 = -double.MAX_FINITE;
+    var y2 = -double.MAX_FINITE;
+
+    // from https://github.com/gabelerner/canvg/blob/860e418aca67b9a41e858a223d74d375793ec364/canvg.js#L449
+    var addX = (num x) {
+      var xd = x.toDouble();
+      x1 = min(x1, xd);
+      x2 = max(x2, xd);
+    };
+
+    var addY = (num y) {
+      var yd = y.toDouble();
+      y1 = min(y1, yd);
+      y2 = max(y2, yd);
+    };
+
+    var addPoint = (num x, num y) {
+      addX(x);
+      addY(y);
+    };
+
+    var addBezierCurve = (num p0x, num p0y, num p1x, num p1y, num p2x, num p2y, num p3x, num p3y) {
+      // from http://blog.hackers-cafe.net/2009/06/how-to-calculate-bezier-curves-bounding.html
+      var p0 = [p0x, p0y];
+      var p1 = [p1x, p1y];
+      var p2 = [p2x, p2y];
+      var p3 = [p3x, p3y];
+
+      addPoint(p0[0], p0[1]);
+      addPoint(p3[0], p3[1]);
+
+      for (var i = 0; i <= 1; i++) {
+        var f = (t) {
+          return pow(1 - t, 3) * p0[i]
+              + 3 * pow(1 - t, 2) * t * p1[i]
+              + 3 * (1 - t) * pow(t, 2) * p2[i]
+              + pow(t, 3) * p3[i];
+        };
+
+        var b = 6 * p0[i] - 12 * p1[i] + 6 * p2[i];
+        var a = -3 * p0[i] + 9 * p1[i] - 9 * p2[i] + 3 * p3[i];
+        var c = 3 * p1[i] - 3 * p0[i];
+
+        if (a == 0) {
+          if (b == 0) {
+            continue;
+          }
+
+          var t = -c / b;
+          if (0 < t && t < 1) {
+            if (i == 0) {
+              addX(f(t));
+            }
+
+            if (i == 1) {
+              addY(f(t));
+            }
+          }
+          continue;
+        }
+
+        var b2ac = pow(b, 2) - 4 * c * a;
+        if (b2ac < 0) {
+          continue;
+        }
+
+        var t1 = (-b + sqrt(b2ac)) / (2 * a);
+        if (0 < t1 && t1 < 1) {
+          if (i == 0) {
+            addX(f(t1));
+          }
+          if (i == 1) {
+            addY(f(t1));
+          }
+        }
+
+        var t2 = (-b - sqrt(b2ac)) / (2 * a);
+        if (0 < t2 && t2 < 1) {
+          if (i == 0) {
+            addX(f(t2));
+          }
+          if (i == 1) {
+            addY(f(t2));
+          }
+        }
+      }
+    };
+
+    var addQuadraticCurve = (num p0x, num p0y, num p1x, num p1y, num p2x, num p2y) {
+      var cp1x = p0x + 2 / 3 * (p1x - p0x); // CP1 = QP0 + 2/3 *(QP1-QP0)
+      var cp1y = p0y + 2 / 3 * (p1y - p0y); // CP1 = QP0 + 2/3 *(QP1-QP0)
+      var cp2x = cp1x + 1 / 3 * (p2x - p0x); // CP2 = CP1 + 1/3 *(QP2-QP0)
+      var cp2y = cp1y + 1 / 3 * (p2y - p0y); // CP2 = CP1 + 1/3 *(QP2-QP0)
+      addBezierCurve(p0x, p0y, cp1x, cp1y, cp2x, cp2y, p2x, p2y);
+    };
+
+    path.abs().unarc().unshort().iterate((List seg, int index, num x, num y) {
+      switch (seg[0]) {
+        case 'M':
+        case 'L':
+          addPoint(seg[1], seg[2]);
+          break;
+        case 'H':
+          addX(seg[1]);
+          break;
+        case 'V':
+          addY(seg[1]);
+          break;
+        case 'Q':
+          addQuadraticCurve(x, y, seg[1], seg[2], seg[3], seg[4]);
+          break;
+        case 'C':
+          addBezierCurve(x, y, seg[1], seg[2], seg[3], seg[4], seg[5], seg[6]);
+          break;
+      }
+    });
+    _bbox = new BoundingBox(x1, y1, x2 - x1, y2 - y1);
+
+    return _bbox;
   }
 }

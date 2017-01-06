@@ -5,3 +5,4 @@ library svgpath;
 
 export 'src/matrix.dart';
 export 'src/svgpath.dart';
+export 'src/bounding_box.dart';
