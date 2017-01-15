@@ -134,65 +134,20 @@ class Matrix {
     ];
   }
 
-  num get scaleXValue => _cache[0];
-  void set scaleXValue(num value) {
-    _cache[0] = value;
-  }
+  num get scaleXValue => toArray()[0];
+  num get scaleYValue => toArray()[3];
+  num get skewXValue => toArray()[1];
+  num get skewYValue => toArray()[2];
+  num get translateXValue => toArray()[4];
+  num get translateYValue => toArray()[5];
 
-  num get scaleYValue => _cache[3];
-  void set scaleYValue(num value) {
-    _cache[3] = value;
-  }
+  num get a => toArray()[0];
+  num get b => toArray()[1];
+  num get c => toArray()[2];
+  num get d => toArray()[3];
+  num get e => toArray()[4];
+  num get f => toArray()[5];
 
-  num get skewXValue => _cache[1];
-  void set skewXValue(num value) {
-    _cache[1] = value;
-  }
-
-  num get skewYValue => _cache[2];
-  void set skewYValue(num value) {
-    _cache[2] = value;
-  }
-
-  num get translateXValue => _cache[4];
-  void set translateXValue(num value) {
-    _cache[4] = value;
-  }
-
-  num get translateYValue => _cache[5];
-  void set translateYValue(num value) {
-    _cache[5] = value;
-  }
-
-  num get a => _cache[0];
-  void set a(num value) {
-    _cache[0] = value;
-  }
-
-  num get b => _cache[1];
-  void set b(num value) {
-    _cache[1] = value;
-  }
-
-  num get c => _cache[2];
-  void set c(num value) {
-    _cache[2] = value;
-  }
-
-  num get d => _cache[3];
-  void set d(num value) {
-    _cache[3] = value;
-  }
-
-  num get e => _cache[4];
-  void set e(num value) {
-    _cache[4] = value;
-  }
-
-  num get f => _cache[5];
-  void set f(num value) {
-    _cache[5] = value;
-  }
 
 //  List<num> get cache => _cache;
 }
