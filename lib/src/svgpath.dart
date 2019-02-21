@@ -253,10 +253,10 @@ class SvgPath {
   SvgPath round([num digits = 0]) {
     _evaluateStack();
 
-    var contourStartDeltaX = 0;
-    var contourStartDeltaY = 0;
-    var deltaX = 0;
-    var deltaY = 0;
+    num contourStartDeltaX = 0;
+    num contourStartDeltaY = 0;
+    num deltaX = 0;
+    num deltaY = 0;
 
     for (var seg in segments) {
       var isRelative = (seg[0].toLowerCase() == seg[0]);
