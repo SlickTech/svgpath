@@ -2,6 +2,9 @@
 // is governed by a MIT license that can be found in the LICENSE file.
 
 import 'dart:math';
+
+import 'package:dart2_constant/core.dart' as core;
+
 import 'path_parse.dart';
 import 'matrix.dart';
 import 'ellipse.dart';
@@ -250,10 +253,10 @@ class SvgPath {
   SvgPath round([num digits = 0]) {
     _evaluateStack();
 
-    var contourStartDeltaX = 0;
-    var contourStartDeltaY = 0;
-    var deltaX = 0;
-    var deltaY = 0;
+    num contourStartDeltaX = 0;
+    num contourStartDeltaY = 0;
+    num deltaX = 0;
+    num deltaY = 0;
 
     for (var seg in segments) {
       var isRelative = (seg[0].toLowerCase() == seg[0]);
@@ -420,6 +423,8 @@ class SvgPath {
     }
 
     segments = newSegments;
+
+    return this;
   }
 
   // Converts segments from relative to absolute
@@ -645,10 +650,10 @@ class SvgPath {
     var path = new SvgPath._clone(segments);
 
     // from https://github.com/icons8/svg-path-bounding-box
-    var x1 = double.MAX_FINITE;
-    var y1 = double.MAX_FINITE;
-    var x2 = -double.MAX_FINITE;
-    var y2 = -double.MAX_FINITE;
+    var x1 = core.double.maxFinite;
+    var y1 = core.double.maxFinite;
+    var x2 = -core.double.maxFinite;
+    var y2 = -core.double.maxFinite;
 
     // from https://github.com/gabelerner/canvg/blob/860e418aca67b9a41e858a223d74d375793ec364/canvg.js#L449
     var addX = (num x) {

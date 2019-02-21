@@ -3,6 +3,8 @@
 
 import 'dart:math' as math;
 
+import 'package:dart2_constant/math.dart' as d2math;
+
 num toFixed(num value, int digits) {
   num rt = double.parse(value.toStringAsFixed(digits));
   return fixInt(rt);
@@ -55,7 +57,7 @@ class Matrix {
     if (angle != 0) {
       translate(rx, ry);
 
-      var rad = angle * math.PI / 180;
+      var rad = angle * d2math.pi / 180;
       var cos = math.cos(rad);
       var sin = math.sin(rad);
 
@@ -69,14 +71,14 @@ class Matrix {
   void skewX(num angle) {
     if (angle != 0) {
       _cache = null;
-      queue.add([1, 0, math.tan(angle * math.PI / 180), 1, 0, 0]);
+      queue.add([1, 0, math.tan(angle * d2math.pi / 180), 1, 0, 0]);
     }
   }
 
   void skewY(num angle) {
     if (angle != 0) {
       _cache = null;
-      queue.add([1, math.tan(angle * math.PI / 180), 0, 1, 0, 0]);
+      queue.add([1, math.tan(angle * d2math.pi / 180), 0, 1, 0, 0]);
     }
   }
 

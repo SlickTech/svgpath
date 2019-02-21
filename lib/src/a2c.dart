@@ -3,9 +3,11 @@
 
 import 'dart:math';
 
+import 'package:dart2_constant/math.dart' as math;
+
 // Convert an arc to a sequence of cubic bézier curves
 
-const TAU = PI * 2;
+const tau = math.pi * 2;
 
 // Calculate an angle between two vectors
 num vectorAngle(num ux, num uy, num vx, num vy) {
@@ -85,10 +87,10 @@ List<num> getArcCenter(num x1, num y1, num x2, num y2, num fa, num fs, num rx,
   var delta_theta = vectorAngle(v1x, v1y, v2x, v2y);
 
   if (fs == 0 && delta_theta > 0) {
-    delta_theta -= TAU;
+    delta_theta -= tau;
   }
   if (fs == 1 && delta_theta < 0) {
-    delta_theta += TAU;
+    delta_theta += tau;
   }
 
   return [ cx, cy, theta1, delta_theta ];
@@ -110,8 +112,8 @@ List<num> approximateUnitArc(theta1, delta_theta) {
 }
 
 List<List<num>> a2c(num x1, num y1, num x2, num y2, num fa, num fs, num rx, num ry, phi) {
-  var sin_phi = sin(phi * TAU / 360);
-  var cos_phi = cos(phi * TAU / 360);
+  var sin_phi = sin(phi * tau / 360);
+  var cos_phi = cos(phi * tau / 360);
 
   // Make sure radii are valid
   //
@@ -152,7 +154,7 @@ List<List<num>> a2c(num x1, num y1, num x2, num y2, num fa, num fs, num rx, num 
   // Split an arc to multiple segments, so each segment
   // will be less than τ/4 (= 90°)
   //
-  var segments = max(((delta_theta).abs() / (TAU / 4)).ceil(), 1);
+  var segments = max(((delta_theta).abs() / (tau / 4)).ceil(), 1);
   delta_theta /= segments;
 
   for (var i = 0; i < segments; i++) {
