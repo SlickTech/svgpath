@@ -1,7 +1,7 @@
 name: svgpath
 version: 1.0.0
 description: SVG path low level transformations toolkit
-author: SlickTech
+author: SlickTech <dev@slicktech.org>
 homepage: https://github.com/SlickTech/svgpath
 
 environment:
