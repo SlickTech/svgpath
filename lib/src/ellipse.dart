@@ -2,12 +2,15 @@
 // is governed by a MIT license that can be found in the LICENSE file.
 
 import 'dart:math';
+
+import 'package:dart2_constant/math.dart' as math;
+
 import 'matrix.dart';
 
 const epsilon = 0.0000000001;
 
 // To convert degree in radians
-const torad = PI / 180;
+const torad = math.pi / 180;
 
 class Ellipse {
   num rx;
@@ -71,7 +74,7 @@ class Ellipse {
         ? 90
         : fixInt(atan(L.abs() > (l1 - K).abs() ? (l1 - J) / L : L / (l1 - K)) *
             180 /
-            PI);
+            math.pi);
 
     // if ax > 0 => rx = sqrt(l1), ry = sqrt(l2), else exchange axes and ax += 90
     if (ax >= 0) {
